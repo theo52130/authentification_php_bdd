@@ -1,6 +1,6 @@
 <?php
 session_start();
-if (!isset($_SESSION['username']) || $_SESSION['role'] != 'admin') {
+if (!isset($_SESSION['username']) || $_SESSION['role'] != 'employer') {
     header("Location: login.php");
     exit();
 }
@@ -19,13 +19,8 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] != 'admin') {
     <p>Votre email est: <?php echo htmlspecialchars($_SESSION['email']); ?></p>
     <p>Votre rôle est: <?php echo htmlspecialchars($_SESSION['role']); ?></p>
 
-    <?php if ($_SESSION['role'] == 'admin'): ?>
-        <p>Vous avez accès aux fonctionnalités d'administration.</p>
-    <?php elseif ($_SESSION['role'] == 'employer'): ?>
-        <p>Vous avez accès aux fonctionnalités pour les employés.</p>
-    <?php elseif ($_SESSION['role'] == 'client'): ?>
-        <p>Vous avez accès aux fonctionnalités pour les clients.</p>
-    <?php endif; ?>
+    <p>Vous avez accès aux fonctionnalités pour les employés.</p>
+
 
     <a href="logout.php">Déconnexion</a>
 </body>

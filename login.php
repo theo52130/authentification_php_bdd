@@ -4,7 +4,6 @@
 <head>
     <title>Connexion</title>
     <link rel="stylesheet" href="style.css">
-
 </head>
 
 <body>
@@ -33,7 +32,15 @@
             $_SESSION['username'] = $user['username'];
             $_SESSION['email'] = $user['email'];
             $_SESSION['role'] = $user['role'];
-            header("Location: welcome.php");
+
+            if ($_SESSION['role'] == 'admin') {
+                header("Location: welcome-admin.php");
+            } elseif ($_SESSION['role'] == 'employer') {
+                header("Location: welcome-employer.php");
+            } elseif ($_SESSION['role'] == 'client') {
+                header("Location: welcome-client.php");
+            }
+            exit();
         } else {
             echo "Email ou mot de passe incorrect.";
         }
