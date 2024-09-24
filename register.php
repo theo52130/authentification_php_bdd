@@ -3,11 +3,12 @@
 
 <head>
     <title>Inscription</title>
-    <link rel="stylesheet" href="style.css">
-
+    <link rel="stylesheet" href="./styles/register-style.css">
 </head>
 
 <body>
+    <?php require 'header.php'; ?>
+
     <h2>Inscription</h2>
     <form action="register.php" method="post">
         <label>Nom d'utilisateur:</label>

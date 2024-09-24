@@ -3,10 +3,12 @@
 
 <head>
     <title>Connexion</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="./styles/login-style.css">
 </head>
 
 <body>
+    <?php require 'header.php'; ?>
+
     <h2>Connexion</h2>
     <form action="login.php" method="post">
         <label>Email:</label>
