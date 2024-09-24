@@ -24,7 +24,7 @@ if (!isset($_SESSION['username'])) {
         <p>Vous avez accès aux fonctionnalités d'administration.</p>
     <?php elseif ($_SESSION['role'] == 'employer'): ?>
         <p>Vous avez accès aux fonctionnalités pour les employés.</p>
-    <?php else: ?>
+    <?php elseif ($_SESSION['role'] == 'client'): ?>
         <p>Vous avez accès aux fonctionnalités pour les clients.</p>
     <?php endif; ?>
 
