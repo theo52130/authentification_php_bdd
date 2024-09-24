@@ -19,7 +19,7 @@
     </form>
 
     <?php
-    require('config.php');
+    require('./db/config.php');
     session_start();
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {

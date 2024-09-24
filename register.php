@@ -27,7 +27,7 @@
     </form>
 
     <?php
-    require('config.php');
+    require('./db/config.php');
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $username = mysqli_real_escape_string($conn, $_POST['username']);
