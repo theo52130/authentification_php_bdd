@@ -21,7 +21,7 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] != 'client') {
 
     <p>Vous avez accès aux fonctionnalités pour les clients.</p>
 
-
+    <a href="index.php">Accueil</a>
     <a href="logout.php">Déconnexion</a>
 </body>
 
