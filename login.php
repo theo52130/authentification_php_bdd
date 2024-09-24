@@ -33,13 +33,8 @@
             $_SESSION['email'] = $user['email'];
             $_SESSION['role'] = $user['role'];
 
-            if ($_SESSION['role'] == 'admin') {
-                header("Location: welcome-admin.php");
-            } elseif ($_SESSION['role'] == 'employer') {
-                header("Location: welcome-employer.php");
-            } elseif ($_SESSION['role'] == 'client') {
-                header("Location: welcome-client.php");
-            }
+            header("Location: intersection.php");
+
             exit();
         } else {
             echo "Email ou mot de passe incorrect.";
