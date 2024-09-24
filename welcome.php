@@ -1,6 +1,6 @@
 <?php
 session_start();
-if (!isset($_SESSION['username']) && $_SESSION['role'] == 'admin') {
+if (!isset($_SESSION['username']) || $_SESSION['role'] != 'admin') {
     header("Location: login.php");
     exit();
 }
@@ -12,7 +12,6 @@ if (!isset($_SESSION['username']) && $_SESSION['role'] == 'admin') {
 <head>
     <title>Bienvenue</title>
     <link rel="stylesheet" href="style.css">
-
 </head>
 
 <body>
