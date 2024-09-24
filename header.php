@@ -16,7 +16,7 @@ session_start();
     <header>
         <nav>
             <ul>
-                <li><a href="welcome.php">Accueil</a></li>
+                <li><a href="intersection.php">Dashboard</a></li>
                 <?php
                 if (!isset($_SESSION['username'])) { ?>
                     <li><a href="login.php">Connexion</a></li>
