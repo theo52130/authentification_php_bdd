@@ -1,7 +1,7 @@
-<?php
-require('./db/config.php');
-session_start();
-?>
+<!-- <?php
+        require('./db/config.php');
+        session_start();
+        ?>
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -18,4 +18,4 @@ session_start();
 
 </body>
 
-</html>
+</html> -->
