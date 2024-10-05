@@ -2,8 +2,8 @@
 // Configuration de la base de données
 $host = 'localhost'; // L'hôte de la base de données
 $db = 'test_cube_trois'; // Le nom de la base de données
-$user = 'root'; // L'utilisateur de la base de données
-$pass = ''; // Le mot de passe de l'utilisateur de la base de données
+$user = 'cubeTrois'; // L'utilisateur de la base de données
+$pass = 'mdpcubetrois'; // Le mot de passe de l'utilisateur de la base de données
 $charset = 'utf8mb4'; // Le jeu de caractères
 
 // DSN (Data Source Name) pour la connexion
@@ -20,5 +20,6 @@ $options = [
 try {
     $pdo = new PDO($dsn, $user, $pass, $options);
 } catch (\PDOException $e) {
-    throw new \PDOException($e->getMessage(), (int)$e->getCode());
+    // Afficher un message d'erreur approprié
+    die('Erreur de connexion à la base de données : ' . $e->getMessage());
 }

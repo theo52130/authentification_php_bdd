@@ -7,35 +7,34 @@ const AdminScreen = ({ navigation }) => {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const role = await AsyncStorage.getItem('role');
       const token = await AsyncStorage.getItem('token');
-   
-      if (role !== 'admin') {
-        Alert.alert('Accès interdit', 'Vous devez être un administrateur pour accéder à cette page.');
-        navigation.navigate('HomeScreen');
-        return;
-      }
-   
+      console.log('Token récupéré:', token); // Ajoutez ce log
+
       if (!token) {
         Alert.alert('Erreur', 'Token manquant. Veuillez vous reconnecter.');
         navigation.navigate('LoginScreen');
         return;
       }
-   
+
       try {
-        const response = await fetch('http://172.20.10.10/dashboard/authentification_php_bdd/back-end/api-select.php?method=getUsers', {
+        const response = await fetch('http://192.168.1.77/dashboard/authentification_php_bdd/back-end/api/api-select.php?method=getUsers', {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
         });
-   
+
+        console.log('Response status:', response.status); // Ajoutez ce log
+
         if (!response.ok) {
+          const errorText = await response.text(); // Récupérer le corps de la réponse
+          console.error('Erreur de réponse:', errorText);
           throw new Error('Erreur HTTP : ' + response.status);
         }
-   
+
         const data = await response.json();
-   
+        console.log('Données reçues:', data); // Ajoutez ce log
+
         if (data.status === 'success') {
           setUsers(data.users);
         } else {
@@ -59,10 +58,11 @@ const AdminScreen = ({ navigation }) => {
     }
 
     try {
-      const response = await fetch(`https://votre-domaine.com/api-connect.php?method=deleteUser&id=${userId}`, {
+      const response = await fetch(`http://192.168.1.77/dashboard/authentification_php_bdd/back-end/api/api-connect.php?method=deleteUser&id=${userId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
       });
 
@@ -72,7 +72,7 @@ const AdminScreen = ({ navigation }) => {
 
       const data = await response.json();
       if (data.status === 'success') {
-        setUsers(users.filter(user => user.id !== userId));
+        setUsers(prevUsers => prevUsers.filter(user => user.id !== userId)); // Use functional form of setUsers
         Alert.alert('Succès', 'Utilisateur supprimé avec succès.');
       } else {
         Alert.alert('Erreur', 'Impossible de supprimer l\'utilisateur.');
@@ -86,7 +86,7 @@ const AdminScreen = ({ navigation }) => {
     await AsyncStorage.removeItem('userId');
     await AsyncStorage.removeItem('role');
     await AsyncStorage.removeItem('token');
-    navigation.navigate('LoginScreen');
+    navigation.navigate('LoginScreen'); // Corrected screen name
   };
 
   return (

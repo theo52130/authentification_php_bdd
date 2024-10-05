@@ -1,5 +1,5 @@
 <?php
-include 'config.php'; // Inclure la configuration de la base de données
+include '../includes/config.php'; // Inclure la configuration de la base de données
 
 header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: *");
@@ -12,8 +12,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
+function verifyToken($token)
+{
+    global $pdo;
+    $currentTime = time(); // Appeler la fonction time() avant de lier le paramètre
+    $query = "SELECT user_id FROM tokens WHERE token = :token AND expiry > :current_time";
+    $stmt = $pdo->prepare($query);
+    $stmt->bindParam(':token', $token, PDO::PARAM_STR);
+    $stmt->bindParam(':current_time', $currentTime, PDO::PARAM_INT); // Utiliser la variable $currentTime
+    $stmt->execute();
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
 // Vérification du token
 $headers = apache_request_headers();
+file_put_contents('php://stderr', print_r($headers, true)); // Ajoutez ce log
+
 if (!isset($headers['Authorization'])) {
     echo json_encode([
         'status' => 'error',
@@ -23,16 +37,14 @@ if (!isset($headers['Authorization'])) {
 }
 
 $token = str_replace('Bearer ', '', $headers['Authorization']);
-$query = "SELECT id FROM comptes WHERE token = :token";
-$stmt = $pdo->prepare($query);
-$stmt->bindParam(':token', $token, PDO::PARAM_STR);
-$stmt->execute();
-$user = $stmt->fetch(PDO::FETCH_ASSOC);
+file_put_contents('php://stderr', "Token reçu: $token\n", FILE_APPEND); // Ajoutez ce log
+
+$user = verifyToken($token);
 
 if (!$user) {
     echo json_encode([
         'status' => 'error',
-        'message' => 'Token invalide.'
+        'message' => 'Token invalide ou expiré.'
     ]);
     exit;
 }

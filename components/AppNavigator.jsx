@@ -12,8 +12,8 @@ const Stack = createStackNavigator();
 const AppNavigator = () => {
     return (
         <NavigationContainer>
-            <Stack.Navigator initialRouteName="Login">
-                <Stack.Screen name="Login" component={LoginScreen} />
+            <Stack.Navigator initialRouteName="LoginScreen">
+                <Stack.Screen name="LoginScreen" component={LoginScreen} />
                 <Stack.Screen name="AdminScreen" component={AdminScreen} />
                 {/* <Stack.Screen name="EmployerScreen" component={EmployerScreen} />
                 <Stack.Screen name="ClientScreen" component={ClientScreen} /> */}
