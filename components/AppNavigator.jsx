@@ -6,6 +6,7 @@ import LoginScreen from './LoginScreen';
 import AdminScreen from './AdminScreen';
 // import EmployerScreen from './EmployerScreen';
 // import ClientScreen from './ClientScreen';
+import RegisterScreen from './RegisterScreen';
 
 const Stack = createStackNavigator();
 
@@ -17,6 +18,7 @@ const AppNavigator = () => {
                 <Stack.Screen name="AdminScreen" component={AdminScreen} />
                 {/* <Stack.Screen name="EmployerScreen" component={EmployerScreen} />
                 <Stack.Screen name="ClientScreen" component={ClientScreen} /> */}
+                <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
             </Stack.Navigator>
         </NavigationContainer>
     );

@@ -4,12 +4,21 @@ include '../includes/config.php'; // Inclure la configuration de la base de donn
 header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
+
+// Gérer les requêtes prévols OPTIONS
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit; // Terminer le script après cette réponse
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['email']) && isset($_POST['password'])) {
-        $email = $_POST['email'];
-        $password = $_POST['password'];
+    // Lire le corps de la requête
+    $input = json_decode(file_get_contents("php://input"), true);
+
+    if (isset($input['email']) && isset($input['password'])) {
+        $email = $input['email'];
+        $password = $input['password'];
 
         // Prépare la requête pour récupérer les informations de l'utilisateur
         $query = "SELECT id, nom, email, adresse, email_entreprise, siret, password, role FROM comptes WHERE email = ?";
@@ -41,5 +50,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 } else {
     // Réponse d'erreur si la méthode HTTP n'est pas POST
+    http_response_code(405);
     echo json_encode(['status' => 'error', 'message' => 'Méthode HTTP non autorisée.']);
 }

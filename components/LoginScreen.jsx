@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, Button, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginScreen = ({ navigation }) => {
@@ -11,13 +11,16 @@ const LoginScreen = ({ navigation }) => {
             const response = await fetch('http://192.168.1.77/dashboard/authentification_php_bdd/back-end/api/api-connect.php', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Type': 'application/json',
                 },
-                body: `email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`,
+                body: JSON.stringify({ email, password }),
             });
 
             if (!response.ok) {
-                throw new Error('Erreur HTTP : ' + response.status);
+                const errorText = await response.text();
+                console.error('Erreur de réponse:', errorText);
+                Alert.alert('Erreur', 'Erreur HTTP : ' + response.status);
+                return;
             }
 
             const data = await response.json();
@@ -43,31 +46,38 @@ const LoginScreen = ({ navigation }) => {
                         throw new Error('Erreur HTTP : ' + tokenResponse.status);
                     }
 
-                    const tokenData = await tokenResponse.json();
-                    if (tokenData.token) {
-                        await AsyncStorage.setItem('token', tokenData.token);
+                    const contentType = tokenResponse.headers.get('content-type');
+                    if (contentType && contentType.indexOf('application/json') !== -1) {
+                        const tokenData = await tokenResponse.json();
+                        if (tokenData.token) {
+                            await AsyncStorage.setItem('token', tokenData.token);
 
-                        switch (userRole) {
-                            case 'admin':
-                                navigation.navigate('AdminScreen');
-                                break;
-                            // case 'employer':
-                            //     navigation.navigate('EmployerScreen');
-                            //     break;
-                            // case 'client':
-                            //     navigation.navigate('ClientScreen');
-                            //     break;
-                            default:
-                                Alert.alert('Erreur', 'Rôle utilisateur inconnu.');
+                            switch (userRole) {
+                                case 'admin':
+                                    navigation.navigate('AdminScreen');
+                                    break;
+                                // case 'employer':
+                                //     navigation.navigate('EmployerScreen');
+                                //     break;
+                                // case 'client':
+                                //     navigation.navigate('ClientScreen');
+                                //     break;
+                                default:
+                                    Alert.alert('Erreur', 'Rôle utilisateur inconnu.');
+                            }
+                        } else {
+                            Alert.alert('Erreur', 'Échec de la génération du token.');
                         }
                     } else {
-                        Alert.alert('Erreur', 'Échec de la génération du token.');
+                        const errorText = await tokenResponse.text();
+                        console.error('Erreur de réponse:', errorText);
+                        Alert.alert('Erreur', 'Réponse inattendue du serveur.');
                     }
                 } else {
-                    Alert.alert('Erreur', 'Les données de l\'utilisateur sont manquantes.');
+                    Alert.alert('Erreur', 'ID utilisateur ou rôle manquant.');
                 }
             } else {
-                Alert.alert('Erreur', data.message || 'Échec de la connexion.');
+                Alert.alert('Erreur', 'Connexion échouée.');
             }
         } catch (error) {
             Alert.alert('Erreur', 'Problème de connexion : ' + error.message);
@@ -79,6 +89,9 @@ const LoginScreen = ({ navigation }) => {
             style={{ flex: 1, justifyContent: 'center', padding: 20 }}
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
+            <Text style={{ fontSize: 24, fontWeight: 'bold', textAlign: 'center', marginBottom: 20 }}>
+                TBY Innovations
+            </Text>
             <TextInput 
                 placeholder="Email" 
                 value={email} 
