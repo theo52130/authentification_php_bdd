@@ -12,16 +12,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $password = $_POST['password'];
 
         // Prépare la requête pour récupérer les informations de l'utilisateur
-        $query = "SELECT id, nom, email, adresse, email_entreprise, siret, password, role FROM comptes WHERE email = ?";
+        $query = "SELECT id, nom, email, adresse, email_entreprise, siret, password, role, token FROM comptes WHERE email = ?";
         $stmt = $pdo->prepare($query);
         $stmt->execute([$email]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($user && password_verify($password, $user['password'])) { // Vérifie le mot de passe haché
+            // Vérifier si un token existe déjà
+            if (empty($user['token'])) {
+                // Générer un token unique
+                $token = bin2hex(random_bytes(16));
+                // Mettre à jour la table comptes avec le token généré
+                $updateQuery = "UPDATE comptes SET token = ? WHERE id = ?";
+                $updateStmt = $pdo->prepare($updateQuery);
+                $updateStmt->execute([$token, $user['id']]);
+                $user['token'] = $token; // Ajouter le token aux informations de l'utilisateur
+            }
+
             unset($user['password']); // Ne pas envoyer le mot de passe
+
             $response = [
                 'status' => 'success',
-                'user' => $user // Retourne les informations de l'utilisateur
+                'user' => $user // Retourne les informations de l'utilisateur avec le token
             ];
         } else {
             $response = [

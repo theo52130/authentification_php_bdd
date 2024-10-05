@@ -23,13 +23,13 @@ const LoginScreen = ({ navigation }) => {
             const data = await response.json();
             console.log('Réponse de l\'API:', data);
 
-            if (data.status === 'success') {
-                const userId = data.user.id; 
-                const userRole = data.user.role; 
+            if (data.status === 'success' && data.user) {
+                const { id: userId, role: userRole, token } = data.user;
 
-                if (userId !== undefined && userRole !== undefined) {
+                if (userId !== undefined && userRole !== undefined && token !== undefined) {
                     await AsyncStorage.setItem('userId', userId.toString());
                     await AsyncStorage.setItem('role', userRole);
+                    await AsyncStorage.setItem('token', token);
 
                     switch (userRole) {
                         case 'admin':
