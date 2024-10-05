@@ -26,6 +26,7 @@ const AdminScreen = ({ navigation }) => {
 
         console.log('Response status:', response.status); // Ajoutez ce log
 
+
         if (!response.ok) {
           const errorText = await response.text(); // Récupérer le corps de la réponse
           console.error('Erreur de réponse:', errorText);
@@ -83,10 +84,26 @@ const AdminScreen = ({ navigation }) => {
   };
 
   const handleLogOut = async () => {
-    await AsyncStorage.removeItem('userId');
-    await AsyncStorage.removeItem('role');
-    await AsyncStorage.removeItem('token');
-    navigation.navigate('LoginScreen'); // Corrected screen name
+    Alert.alert(
+      'Confirmation',
+      'Êtes-vous sûr de vouloir vous déconnecter ?',
+      [
+        {
+          text: 'Annuler',
+          style: 'cancel',
+        },
+        {
+          text: 'Oui',
+          onPress: async () => {
+            await AsyncStorage.removeItem('userId');
+            await AsyncStorage.removeItem('role');
+            await AsyncStorage.removeItem('token');
+            navigation.navigate('LoginScreen'); // Corrected screen name
+          },
+        },
+      ],
+      { cancelable: false }
+    );
   };
 
   return (

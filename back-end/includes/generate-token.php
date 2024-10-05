@@ -26,22 +26,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit;
             }
 
-            // Générer un token unique
-            $token = bin2hex(random_bytes(32));
-            $expiry = time() + 3600; // Le token expire dans 1 heure
+            // Vérifier si un token valide existe déjà
+            $tokenQuery = "SELECT token FROM tokens WHERE user_id = ? AND expiry > ?";
+            $tokenStmt = $pdo->prepare($tokenQuery);
+            $tokenStmt->execute([$userId, time()]);
+            $existingToken = $tokenStmt->fetch(PDO::FETCH_ASSOC);
 
-            // Insérer le token dans la table tokens
-            $query = "INSERT INTO tokens (user_id, token, expiry) VALUES (?, ?, ?)";
-            $stmt = $pdo->prepare($query);
-            $stmt->execute([$userId, $token, $expiry]);
-
-            // Vérifier si l'insertion a réussi
-            if ($stmt->rowCount() > 0) {
-                // Réponse de succès avec le token généré
-                echo json_encode(['token' => $token]);
+            if ($existingToken) {
+                // Un token valide existe déjà, le renvoyer
+                echo json_encode(['token' => $existingToken['token']]);
             } else {
-                // Réponse d'erreur si l'insertion a échoué
-                echo json_encode(['status' => 'error', 'message' => 'Échec de l\'insertion du token.']);
+                // Aucun token valide trouvé, générer un nouveau token
+                $token = bin2hex(random_bytes(32));
+                $expiry = time() + 3600; // Le token expire dans 1 heure
+
+                // Insérer le token dans la table tokens
+                $insertQuery = "INSERT INTO tokens (user_id, token, expiry) VALUES (?, ?, ?)";
+                $insertStmt = $pdo->prepare($insertQuery);
+                $insertStmt->execute([$userId, $token, $expiry]);
+
+                // Vérifier si l'insertion a réussi
+                if ($insertStmt->rowCount() > 0) {
+                    // Réponse de succès avec le token généré
+                    echo json_encode(['token' => $token]);
+                } else {
+                    // Réponse d'erreur si l'insertion a échoué
+                    echo json_encode(['status' => 'error', 'message' => 'Échec de l\'insertion du token.']);
+                }
             }
         } catch (PDOException $e) {
             // Réponse d'erreur en cas de problème de connexion à la base de données
