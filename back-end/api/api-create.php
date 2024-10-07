@@ -1,43 +1,88 @@
 <?php
-header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: POST");
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+include '../includes/config.php'; // Inclure la configuration de la base de données
+include_once '../includes/token.php'; // Inclure le fichier de vérification du token
 
-include_once '../config/database.php';
-include_once '../objects/compte.php';
+header("Content-Type: application/json");
 
-$database = new Database();
-$db = $database->getConnection();
+// Fonction pour récupérer les en-têtes si `getallheaders` n'est pas disponible
+if (!function_exists('getallheaders')) {
+    function getallheaders()
+    {
+        $headers = [];
+        foreach ($_SERVER as $name => $value) {
+            if (substr($name, 0, 5) == 'HTTP_') {
+                $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+            }
+        }
+        return $headers;
+    }
+}
 
-$compte = new Compte($db);
+// Vérification du token
+$headers = getallheaders();
+$response = []; // Variable pour stocker la réponse
 
-$data = json_decode(file_get_contents("php://input"));
+if (!isset($headers['Authorization'])) {
+    http_response_code(401);
+    $response = ['status' => 'error', 'message' => 'Token manquant.'];
+    echo json_encode($response);
+    exit;
+}
 
-if (
-    !empty($data->nom) &&
-    !empty($data->email) &&
-    !empty($data->adresse) &&
-    !empty($data->password) &&
-    !empty($data->role)
-) {
-    $compte->nom = $data->nom;
-    $compte->email = $data->email;
-    $compte->adresse = $data->adresse;
-    $compte->email_entreprise = $data->email_entreprise;
-    $compte->siret = $data->siret;
-    $compte->password = password_hash($data->password, PASSWORD_BCRYPT);
-    $compte->role = $data->role;
-    $compte->token = bin2hex(random_bytes(16));
+$token = str_replace('Bearer ', '', $headers['Authorization']);
+$user = verifyToken($token);
 
-    if ($compte->create()) {
-        http_response_code(201);
-        echo json_encode(array("message" => "Compte was created."));
+if (!$user) {
+    http_response_code(401);
+    $response = ['status' => 'error', 'message' => 'Token invalide ou expiré.'];
+    echo json_encode($response);
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $data = json_decode(file_get_contents('php://input'), true);
+
+    if (isset($data['nom'], $data['email'], $data['adresse'], $data['email_entreprise'], $data['siret'], $data['password'], $data['role'])) {
+        $nom = $data['nom'];
+        $email = $data['email'];
+        $adresse = $data['adresse'];
+        $email_entreprise = $data['email_entreprise'];
+        $siret = $data['siret'];
+        $password = password_hash($data['password'], PASSWORD_BCRYPT); // Hachage du mot de passe
+        $role = $data['role'];
+
+        // Vérifiez si l'email existe déjà
+        $checkEmail = $pdo->prepare("SELECT id FROM comptes WHERE email = :email");
+        $checkEmail->execute(['email' => $email]);
+        if ($checkEmail->rowCount() > 0) {
+            $response = ['status' => 'error', 'message' => 'L\'email est déjà utilisé.'];
+            echo json_encode($response);
+            exit;
+        }
+
+        // Insertion dans la base de données
+        $sql = "INSERT INTO comptes (nom, email, adresse, email_entreprise, siret, password, role) VALUES (:nom, :email, :adresse, :email_entreprise, :siret, :password, :role)";
+        $stmt = $pdo->prepare($sql);
+
+        try {
+            $stmt->execute([
+                'nom' => $nom,
+                'email' => $email,
+                'adresse' => $adresse,
+                'email_entreprise' => $email_entreprise,
+                'siret' => $siret,
+                'password' => $password,
+                'role' => $role
+            ]);
+            $response = ['status' => 'success', 'message' => 'Compte créé avec succès.'];
+        } catch (PDOException $e) {
+            $response = ['status' => 'error', 'message' => 'Erreur lors de la création du compte.'];
+        }
     } else {
-        http_response_code(503);
-        echo json_encode(array("message" => "Unable to create compte."));
+        $response = ['status' => 'error', 'message' => 'Données manquantes.'];
     }
 } else {
-    http_response_code(400);
-    echo json_encode(array("message" => "Unable to create compte. Data is incomplete."));
+    $response = ['status' => 'error', 'message' => 'Méthode non autorisée.'];
 }
+
+echo json_encode($response); // Afficher la réponse unique

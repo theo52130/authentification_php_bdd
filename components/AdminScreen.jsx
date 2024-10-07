@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { View, Text, Button, FlatList, Alert, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useFocusEffect } from '@react-navigation/native';
 
 const AdminScreen = ({ navigation }) => {
   const [users, setUsers] = useState([]);
 
   const fetchUsers = async () => {
     const token = await AsyncStorage.getItem('token');
-    console.log('Token récupéré:', token); // Ajoutez ce log
+    console.log('Token récupéré:', token);
 
     if (!token) {
       Alert.alert('Erreur', 'Token manquant. Veuillez vous reconnecter.');
@@ -17,23 +18,23 @@ const AdminScreen = ({ navigation }) => {
     }
 
     try {
-      const response = await fetch('http://172.20.10.10/dashboard/authentification_php_bdd/back-end/api/api-select.php?method=getUsers', { // Corrected endpoint
+      const response = await fetch('http://172.20.10.10/dashboard/authentification_php_bdd/back-end/api/api-select.php?method=getUsers', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
 
-      console.log('Response status:', response.status); // Ajoutez ce log
+      console.log('Response status:', response.status);
 
       if (!response.ok) {
-        const errorText = await response.text(); // Récupérer le corps de la réponse
+        const errorText = await response.text();
         console.error('Erreur de réponse:', errorText);
         throw new Error('Erreur HTTP : ' + response.status);
       }
 
       const data = await response.json();
-      console.log('Données reçues:', data); // Ajoutez ce log
+      console.log('Données reçues:', data);
 
       if (data.status === 'success') {
         setUsers(data.users);
@@ -45,9 +46,11 @@ const AdminScreen = ({ navigation }) => {
     }
   };
 
-  useEffect(() => {
-    fetchUsers();
-  }, [navigation]);
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchUsers();
+    }, [])
+  );
 
   const handleDeleteUser = async (userId) => {
     Alert.alert(
@@ -83,7 +86,7 @@ const AdminScreen = ({ navigation }) => {
                 const errorText = await response.text();
                 console.error('Erreur de réponse:', errorText);
                 Alert.alert('Erreur', 'Erreur HTTP : ' + response.status);
-                return;  // Stop further execution if there's an error
+                return;
               }
 
               const contentType = response.headers.get('content-type');
@@ -126,7 +129,7 @@ const AdminScreen = ({ navigation }) => {
             await AsyncStorage.removeItem('userId');
             await AsyncStorage.removeItem('role');
             await AsyncStorage.removeItem('token');
-            navigation.navigate('LoginScreen'); // Corrected screen name
+            navigation.navigate('LoginScreen');
           },
         },
       ],

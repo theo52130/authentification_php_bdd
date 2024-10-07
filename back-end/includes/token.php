@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     }
 }
 
-echo json_encode([
-    'status' => 'error',
-    'message' => 'Méthode non reconnue.'
-]);
+// echo json_encode([
+//     'status' => 'error',
+//     'message' => 'Méthode non reconnue.'
+// ]);
