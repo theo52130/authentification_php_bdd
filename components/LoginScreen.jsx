@@ -8,7 +8,7 @@ const LoginScreen = ({ navigation }) => {
 
     const handleLogin = async () => {
         try {
-            const response = await fetch('http://192.168.1.77/dashboard/authentification_php_bdd/back-end/api/api-connect.php', {
+            const response = await fetch('http://172.20.10.10/dashboard/authentification_php_bdd/back-end/api/api-connect.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -34,7 +34,7 @@ const LoginScreen = ({ navigation }) => {
                     await AsyncStorage.setItem('role', userRole);
 
                     // Générer le token après la connexion réussie
-                    const tokenResponse = await fetch('http://192.168.1.77/dashboard/authentification_php_bdd/back-end/includes/generate-token.php', {
+                    const tokenResponse = await fetch('http://172.20.10.10/dashboard/authentification_php_bdd/back-end/includes/generate-token.php', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded',

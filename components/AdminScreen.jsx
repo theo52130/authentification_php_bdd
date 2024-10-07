@@ -17,7 +17,7 @@ const AdminScreen = ({ navigation }) => {
     }
 
     try {
-      const response = await fetch('http://192.168.1.77/dashboard/authentification_php_bdd/back-end/api/api-select.php?method=getUsers', { // Corrected endpoint
+      const response = await fetch('http://172.20.10.10/dashboard/authentification_php_bdd/back-end/api/api-select.php?method=getUsers', { // Corrected endpoint
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -70,7 +70,7 @@ const AdminScreen = ({ navigation }) => {
             }
 
             try {
-              const response = await fetch(`http://192.168.1.77/dashboard/authentification_php_bdd/back-end/api/api-delete.php`, {
+              const response = await fetch(`http://172.20.10.10/dashboard/authentification_php_bdd/back-end/api/api-delete.php`, {
                 method: 'DELETE',
                 headers: {
                   'Authorization': `Bearer ${token}`,
