@@ -21,7 +21,18 @@ function verifyToken($token)
     $stmt->bindParam(':token', $token, PDO::PARAM_STR);
     $stmt->bindParam(':current_time', $currentTime, PDO::PARAM_INT); // Utiliser la variable $currentTime
     $stmt->execute();
-    return $stmt->fetch(PDO::FETCH_ASSOC);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($result) {
+        // Simuler la récupération de l'utilisateur depuis la base de données
+        return [
+            'id' => $result['user_id'],
+            // 'nom' => 'Nom Utilisateur', // Remplacer par la logique réelle pour récupérer le nom
+            // 'email' => 'email@example.com' // Remplacer par la logique réelle pour récupérer l'email
+        ];
+    }
+
+    return false;
 }
 
 // Vérification du token

@@ -1,111 +1,91 @@
 import React, { useState } from 'react';
-import { View, Text, Button, FlatList, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, Button, FlatList, Alert, TouchableOpacity, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useFocusEffect } from '@react-navigation/native';
 
 const AdminScreen = ({ navigation }) => {
   const [users, setUsers] = useState([]);
+  const [factures, setFactures] = useState([]);
+  const [categories, setCategories] = useState('comptes');
+  const [loading, setLoading] = useState(false);
 
-  const fetchUsers = async () => {
+  const apiRequest = async (url, method, body) => {
     const token = await AsyncStorage.getItem('token');
-    console.log('Token récupéré:', token);
-
     if (!token) {
       Alert.alert('Erreur', 'Token manquant. Veuillez vous reconnecter.');
       navigation.navigate('LoginScreen');
-      return;
+      return null;
     }
-
     try {
-      const response = await fetch('http://172.20.10.10/dashboard/authentification_php_bdd/back-end/api/api-select.php?method=getUsers', {
+      const response = await fetch(url, {
+        method,
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify(body),
       });
 
-      console.log('Response status:', response.status);
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Erreur de réponse:', errorText);
-        throw new Error('Erreur HTTP : ' + response.status);
-      }
-
-      const data = await response.json();
-      console.log('Données reçues:', data);
-
-      if (data.status === 'success') {
-        setUsers(data.users);
-      } else {
-        Alert.alert('Erreur', 'Impossible de récupérer les utilisateurs.');
-      }
+      if (!response.ok) throw new Error('Erreur HTTP : ' + response.status);
+      return await response.json();
     } catch (error) {
       Alert.alert('Erreur', 'Problème de connexion au serveur : ' + error.message);
+      return null;
     }
+  };
+
+  const fetchUsers = async () => {
+    setLoading(true);
+    const data = await apiRequest('http://172.20.10.10/dashboard/authentification_php_bdd/back-end/api/api-select.php?method=getUsers', 'GET');
+    if (data && data.status === 'success') {
+      setUsers(data.users);
+    } else {
+      Alert.alert('Erreur', 'Impossible de récupérer les utilisateurs.');
+    }
+    setLoading(false);
+  };
+
+  const fetchFactures = async () => {
+    setLoading(true);
+    const data = await apiRequest('http://172.20.10.10/dashboard/authentification_php_bdd/back-end/api/api-select.php?method=getFactures', 'GET');
+    if (data && data.status === 'success') {
+      setFactures(data.factures);
+    } else {
+      Alert.alert('Erreur', 'Impossible de récupérer les factures.');
+    }
+    setLoading(false);
   };
 
   useFocusEffect(
     React.useCallback(() => {
-      fetchUsers();
-    }, [])
+      if (categories === 'comptes') {
+        fetchUsers();
+      } else {
+        fetchFactures();
+      }
+    }, [categories])
   );
 
-  const handleDeleteUser = async (userId) => {
+  const handleDelete = async (id, type) => {
     Alert.alert(
       'Confirmation',
-      'Êtes-vous sûr de vouloir supprimer cet utilisateur ?',
+      `Êtes-vous sûr de vouloir supprimer cet ${type === 'user' ? 'utilisateur' : 'facture'} ?`,
       [
-        {
-          text: 'Annuler',
-          style: 'cancel',
-        },
+        { text: 'Annuler', style: 'cancel' },
         {
           text: 'Oui',
           onPress: async () => {
-            const token = await AsyncStorage.getItem('token');
-
-            if (!token) {
-              Alert.alert('Erreur', 'Token manquant. Veuillez vous reconnecter.');
-              navigation.navigate('LoginScreen');
-              return;
-            }
-
-            try {
-              const response = await fetch(`http://172.20.10.10/dashboard/authentification_php_bdd/back-end/api/api-delete.php`, {
-                method: 'DELETE',
-                headers: {
-                  'Authorization': `Bearer ${token}`,
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ id: userId }),
-              });
-
-              if (!response.ok) {
-                const errorText = await response.text();
-                console.error('Erreur de réponse:', errorText);
-                Alert.alert('Erreur', 'Erreur HTTP : ' + response.status);
-                return;
-              }
-
-              const contentType = response.headers.get('content-type');
-              if (contentType && contentType.indexOf('application/json') !== -1) {
-                const data = await response.json();
-
-                if (data.status === 'success') {
-                  setUsers(prevUsers => prevUsers.filter(user => user.id !== userId));
-                  Alert.alert('Succès', 'Utilisateur supprimé avec succès.');
-                } else {
-                  Alert.alert('Erreur', data.message || 'Impossible de supprimer l\'utilisateur.');
-                }
+            const data = await apiRequest('http://172.20.10.10/dashboard/authentification_php_bdd/back-end/api/api-delete.php', 'DELETE', { id, type });
+            if (data && data.status === 'success') {
+              if (type === 'user') {
+                setUsers(prevUsers => prevUsers.filter(user => user.id !== id));
               } else {
-                const errorText = await response.text();
-                console.error('Erreur de réponse:', errorText);
-                Alert.alert('Erreur', 'Réponse inattendue du serveur.');
+                setFactures(prevFactures => prevFactures.filter(facture => facture.id !== id));
               }
-            } catch (error) {
-              Alert.alert('Erreur', 'Problème de connexion au serveur : ' + error.message);
+              Alert.alert('Succès', `${type === 'user' ? 'Utilisateur' : 'Facture'} supprimé avec succès.`);
+            } else {
+              Alert.alert('Erreur', `Impossible de supprimer l${type === 'user' ? 'utilisateur' : 'a facture'}.`);
             }
           },
         },
@@ -115,53 +95,58 @@ const AdminScreen = ({ navigation }) => {
   };
 
   const handleLogOut = async () => {
-    Alert.alert(
-      'Confirmation',
-      'Êtes-vous sûr de vouloir vous déconnecter ?',
-      [
-        {
-          text: 'Annuler',
-          style: 'cancel',
-        },
-        {
-          text: 'Oui',
-          onPress: async () => {
-            await AsyncStorage.removeItem('userId');
-            await AsyncStorage.removeItem('role');
-            await AsyncStorage.removeItem('token');
-            navigation.navigate('LoginScreen');
-          },
-        },
-      ],
-      { cancelable: false }
-    );
+    Alert.alert('Confirmation', 'Êtes-vous sûr de vouloir vous déconnecter ?', [
+      { text: 'Annuler', style: 'cancel' },
+      { text: 'Oui', onPress: async () => {
+        await AsyncStorage.clear();
+        navigation.navigate('LoginScreen');
+      }},
+    ]);
   };
 
   return (
     <View style={{ flex: 1, padding: 20 }}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Text style={{ fontSize: 24, marginBottom: 20 }}>Gestion des utilisateurs</Text>
+        <Button title="Comptes" onPress={() => { setCategories('comptes'); fetchUsers(); }} />
+        <Button title="Factures" onPress={() => { setCategories('factures'); fetchFactures(); }} />
         <View style={{ flexDirection: 'row' }}>
-          <TouchableOpacity onPress={fetchUsers} style={{ marginRight: 10 }}>
+          <TouchableOpacity onPress={() => { categories === 'comptes' ? fetchUsers() : fetchFactures(); }} style={{ marginRight: 10 }}>
             <Ionicons name="reload" size={24} color="black" />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate('RegisterScreen')}>
-            <Ionicons name="person-add" size={24} color="black" />
+          <TouchableOpacity onPress={() => navigation.navigate(categories === 'comptes' ? 'RegisterScreen' : 'CreateFactureScreen')}>
+            <Ionicons name={categories === 'comptes' ? "person-add" : "add"} size={24} color="black" />
           </TouchableOpacity>
         </View>
       </View>
-      <FlatList
-        data={users}
-        keyExtractor={item => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: '#ccc' }}>
-            <Text style={{ fontSize: 18 }}>{item.nom}</Text>
-            <Text>Email: {item.email}</Text>
-            <Text>Rôle: {item.role}</Text>
-            <Button title="Supprimer" onPress={() => handleDeleteUser(item.id)} />
-          </View>
-        )}
-      />
+
+      {loading ? (
+        <ActivityIndicator size="large" color="#0000ff" />
+      ) : (
+        <FlatList
+          data={categories === 'comptes' ? users : factures}
+          keyExtractor={item => item.id.toString()}
+          renderItem={({ item }) => (
+            <View style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: '#ccc' }}>
+              <Text style={{ fontSize: 18 }}>{categories === 'comptes' ? item.nom : `Ref : ${item.id}`}</Text>
+              {categories === 'comptes' ? (
+                <>
+                  <Text>Email: {item.email}</Text>
+                  <Text>Rôle: {item.role}</Text>
+                </>
+              ) : (
+                <>
+                  <Text>Client : {item.email}</Text>
+                  <Text>Date création : {item.date_creation}</Text>
+                  <Text>Montant total : {item.total} HT</Text>
+                  <Text>État : {item.etat}</Text>
+                </>
+              )}
+              <Button title="Supprimer" onPress={() => handleDelete(item.id, categories === 'comptes' ? 'user' : 'facture')} />
+            </View>
+          )}
+        />
+      )}
+
       <Button title="Se déconnecter" onPress={handleLogOut} />
     </View>
   );

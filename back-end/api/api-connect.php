@@ -20,6 +20,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $email = $input['email'];
         $password = $input['password'];
 
+        // Validation de l'email
+        if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
+            echo json_encode(['status' => 'error', 'message' => 'Email invalide.']);
+            exit;
+        }
+
         // Prépare la requête pour récupérer les informations de l'utilisateur
         $query = "SELECT id, nom, email, adresse, email_entreprise, siret, password, role FROM comptes WHERE email = ?";
         $stmt = $pdo->prepare($query);
@@ -27,7 +33,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($user && password_verify($password, $user['password'])) { // Vérifie le mot de passe haché
-            // Réponse de succès avec les informations de l'utilisateur
+            // Récupérer les factures de l'utilisateur
+            $facturesQuery = "SELECT id, date_creation, total, etat FROM factures WHERE client_id = ?";
+            $facturesStmt = $pdo->prepare($facturesQuery);
+            $facturesStmt->execute([$user['id']]);
+            $factures = $facturesStmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Réponse de succès avec les informations de l'utilisateur et les factures
             echo json_encode([
                 'status' => 'success',
                 'user' => [
@@ -38,18 +50,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'email_entreprise' => $user['email_entreprise'],
                     'siret' => $user['siret'],
                     'role' => $user['role']
-                ]
+                ],
+                'factures' => $factures // Inclure les factures
             ]);
         } else {
             // Réponse d'erreur si les informations de connexion sont incorrectes
             echo json_encode(['status' => 'error', 'message' => 'Email ou mot de passe incorrect.']);
         }
     } else {
-        // Réponse d'erreur si les champs email ou mot de passe sont manquants
         echo json_encode(['status' => 'error', 'message' => 'Champs email et mot de passe requis.']);
     }
-} else {
-    // Réponse d'erreur si la méthode HTTP n'est pas POST
-    http_response_code(405);
-    echo json_encode(['status' => 'error', 'message' => 'Méthode HTTP non autorisée.']);
 }

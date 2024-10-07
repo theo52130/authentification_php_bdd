@@ -31,7 +31,7 @@ const RegisterScreen = ({ navigation }) => {
         }
 
         try {
-            const response = await fetch('http://172.20.10.10/dashboard/authentification_php_bdd/back-end/api/api-create.php', {
+            const response = await fetch('http://172.20.10.10/dashboard/authentification_php_bdd/back-end/api/api-create-account.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

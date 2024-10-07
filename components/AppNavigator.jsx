@@ -7,6 +7,7 @@ import AdminScreen from './AdminScreen';
 // import EmployerScreen from './EmployerScreen';
 // import ClientScreen from './ClientScreen';
 import RegisterScreen from './RegisterScreen';
+import CreateFactureScreen from './CreateFactureScreen';
 
 const Stack = createStackNavigator();
 
@@ -19,6 +20,7 @@ const AppNavigator = () => {
                 {/* <Stack.Screen name="EmployerScreen" component={EmployerScreen} />
                 <Stack.Screen name="ClientScreen" component={ClientScreen} /> */}
                 <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
+                <Stack.Screen name="CreateFactureScreen" component={CreateFactureScreen} />
             </Stack.Navigator>
         </NavigationContainer>
     );
