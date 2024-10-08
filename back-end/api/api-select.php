@@ -68,12 +68,12 @@ if (isset($_GET['method'])) {
 function fetchUsers($pdo)
 {
     try {
-        $query = "SELECT `id`, `nom`, `email`, `adresse`, `email_entreprise`, `siret`, `role` FROM `comptes`";
+        $query = "SELECT `id`, `nom`, `email`, `adresse`, `email_entreprise`, `siret`, `role`, `image_url` FROM `comptes`";
         $stmt = $pdo->prepare($query);
         $stmt->execute();
         $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        return ['status' => 'success', 'users' => $users];
+        return ['status' => 'success', 'users', `image_url` => $users];
     } catch (PDOException $e) {
         return ['status' => 'error', 'message' => 'Erreur lors de la récupération des utilisateurs : ' . $e->getMessage()];
     }

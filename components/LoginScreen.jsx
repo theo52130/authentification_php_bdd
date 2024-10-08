@@ -58,11 +58,11 @@ const LoginScreen = ({ navigation }) => {
                                     break;
                                 case 'employer':
                                     // navigation.navigate('EmployerScreen');
-                                    navigation.navigate('AdminScreen');
+                                    navigation.navigate('Error');
                                     break;
                                 case 'client':
                                     // navigation.navigate('ClientScreen');
-                                    navigation.navigate('AdminScreen');
+                                    navigation.navigate('Error');
                                     break;
                                 default:
                                     Alert.alert('Erreur', 'Rôle utilisateur inconnu.');

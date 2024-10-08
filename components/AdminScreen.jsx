@@ -6,14 +6,13 @@ import { useFocusEffect } from '@react-navigation/native';
 
 const defaultProfileImage = require('../assets/silhouette-profile.jpeg'); // Chemin vers l'image par défaut
 
-
 const AdminScreen = ({ navigation }) => {
   const [users, setUsers] = useState([]);
   const [factures, setFactures] = useState([]);
   const [categories, setCategories] = useState('comptes');
   const [loading, setLoading] = useState(false);
 
-  const apiRequest = async (url, method, body) => {
+  const apiRequest = async (url, method, body = null) => {
     const token = await AsyncStorage.getItem('token');
     if (!token) {
       Alert.alert('Erreur', 'Token manquant. Veuillez vous reconnecter.');
@@ -27,7 +26,7 @@ const AdminScreen = ({ navigation }) => {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(body),
+        body: body ? JSON.stringify(body) : null,
       });
 
       if (!response.ok) throw new Error('Erreur HTTP : ' + response.status);
@@ -158,6 +157,7 @@ const AdminScreen = ({ navigation }) => {
               {categories === 'comptes' && (
                 <Image 
                   source={item.image_url ? { uri: item.image_url } : defaultProfileImage}
+                  onError={() => console.log('Failed to load image:', item.image_url)}
                   style={{ width: 50, height: 50, borderRadius: 25, marginRight: 10 }} 
                 />
               )}
