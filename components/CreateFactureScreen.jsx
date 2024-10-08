@@ -84,7 +84,7 @@ const CreateFactureScreen = ({ navigation }) => {
         }
 
         try {
-            const response = await fetch('http://172.20.10.10/dashboard/authentification_php_bdd/back-end/api/api-create-facture.php', {
+            const response = await fetch('http://${ipAddress}/dashboard/authentification_php_bdd/back-end/api/api-create-facture.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

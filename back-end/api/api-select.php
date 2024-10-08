@@ -65,7 +65,7 @@ if (isset($_GET['method'])) {
 function fetchUsers($pdo)
 {
     try {
-        $query = "SELECT id, nom, email, adresse, email_entreprise, siret, role FROM comptes";
+        $query = "SELECT `id`, `nom`, `email`, `adresse`, `email_entreprise`, `siret`, `role` FROM `comptes`";
         $stmt = $pdo->prepare($query);
         $stmt->execute();
         $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -79,7 +79,7 @@ function fetchUsers($pdo)
 function fetchClients($pdo)
 {
     try {
-        $query = "SELECT id, nom FROM comptes WHERE role = 'client'";
+        $query = "SELECT `id`, `nom` FROM `comptes` WHERE `role` = 'client'";
         $stmt = $pdo->prepare($query);
         $stmt->execute();
         $clients = $stmt->fetchAll(PDO::FETCH_ASSOC);

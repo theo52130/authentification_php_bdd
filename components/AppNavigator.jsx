@@ -8,6 +8,8 @@ import AdminScreen from './AdminScreen';
 // import ClientScreen from './ClientScreen';
 import RegisterScreen from './RegisterScreen';
 import CreateFactureScreen from './CreateFactureScreen';
+import UpdateCompteScreen from './UpdateCompteScreen';
+import UpdateFactureScreen from './UpdateFactureScreen';
 
 const Stack = createStackNavigator();
 
@@ -21,6 +23,8 @@ const AppNavigator = () => {
                 <Stack.Screen name="ClientScreen" component={ClientScreen} /> */}
                 <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
                 <Stack.Screen name="CreateFactureScreen" component={CreateFactureScreen} />
+                <Stack.Screen name="UpdateCompte" component={UpdateCompteScreen} />
+                <Stack.Screen name="UpdateFacture" component={UpdateFactureScreen} />
             </Stack.Navigator>
         </NavigationContainer>
     );

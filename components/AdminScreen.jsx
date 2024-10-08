@@ -104,6 +104,31 @@ const AdminScreen = ({ navigation }) => {
     ]);
   };
 
+  const handlePaymentChange = async (facture) => {
+    Alert.alert(
+      'Confirmation',
+      `Êtes-vous sûr de vouloir marquer la facture ${facture.id} comme payée ?`,
+      [
+        { text: 'Annuler', style: 'cancel' },
+        {
+          text: 'Oui',
+          onPress: async () => {
+            const data = await apiRequest('http://172.20.10.10/dashboard/authentification_php_bdd/back-end/api/api-payments.php', 'POST', { id: facture.id });
+            if (data && data.status === 'success') {
+              setFactures(prevFactures => prevFactures.map(f => 
+                f.id === facture.id ? { ...f, etat: 'payée' } : f
+              ));
+              Alert.alert('Succès', 'Facture marquée comme payée avec succès.');
+            } else {
+              Alert.alert('Erreur', 'Impossible de mettre à jour l\'état de la facture.');
+            }
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+  };
+
   return (
     <View style={{ flex: 1, padding: 20 }}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -124,10 +149,11 @@ const AdminScreen = ({ navigation }) => {
       ) : (
         <FlatList
           data={categories === 'comptes' ? users : factures}
-          keyExtractor={item => item.id.toString()}
+          keyExtractor={item => item.id ? item.id.toString() : item.email ? item.email : Math.random().toString()}
           renderItem={({ item }) => (
             <View style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: '#ccc' }}>
               <Text style={{ fontSize: 18 }}>{categories === 'comptes' ? item.nom : `Ref : ${item.id}`}</Text>
+
               {categories === 'comptes' ? (
                 <>
                   <Text>Email: {item.email}</Text>
@@ -139,9 +165,28 @@ const AdminScreen = ({ navigation }) => {
                   <Text>Date création : {item.date_creation}</Text>
                   <Text>Montant total : {item.total} HT</Text>
                   <Text>État : {item.etat}</Text>
+
+                  {item.etat === 'non payée' && (
+                    <Button 
+                      title="Marquer comme payée" 
+                      onPress={() => handlePaymentChange(item)} 
+                    />
+                  )}
                 </>
               )}
-              <Button title="Supprimer" onPress={() => handleDelete(item.id, categories === 'comptes' ? 'user' : 'facture')} />
+
+              {categories === 'comptes' && (
+                <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginTop: 10 }}>
+                  <Button 
+                    title="Supprimer" 
+                    onPress={() => handleDelete(item.id, 'user')} 
+                  />
+                  <Button 
+                    title="Modifier" 
+                    onPress={() => navigation.navigate('UpdateCompte', { user: item })} 
+                  />
+                </View>
+              )}
             </View>
           )}
         />
