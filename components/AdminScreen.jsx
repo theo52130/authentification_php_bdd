@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, Button, FlatList, Alert, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, Button, FlatList, Alert, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useFocusEffect } from '@react-navigation/native';
+
+const defaultProfileImage = require('../assets/silhouette-profile.jpeg'); // Chemin vers l'image par défaut
+
 
 const AdminScreen = ({ navigation }) => {
   const [users, setUsers] = useState([]);
@@ -151,42 +154,50 @@ const AdminScreen = ({ navigation }) => {
           data={categories === 'comptes' ? users : factures}
           keyExtractor={item => item.id ? item.id.toString() : item.email ? item.email : Math.random().toString()}
           renderItem={({ item }) => (
-            <View style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: '#ccc' }}>
-              <Text style={{ fontSize: 18 }}>{categories === 'comptes' ? item.nom : `Ref : ${item.id}`}</Text>
-
-              {categories === 'comptes' ? (
-                <>
-                  <Text>Email: {item.email}</Text>
-                  <Text>Rôle: {item.role}</Text>
-                </>
-              ) : (
-                <>
-                  <Text>Client : {item.email}</Text>
-                  <Text>Date création : {item.date_creation}</Text>
-                  <Text>Montant total : {item.total} HT</Text>
-                  <Text>État : {item.etat}</Text>
-
-                  {item.etat === 'non payée' && (
-                    <Button 
-                      title="Marquer comme payée" 
-                      onPress={() => handlePaymentChange(item)} 
-                    />
-                  )}
-                </>
-              )}
-
+            <View style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: '#ccc', flexDirection: 'row', alignItems: 'center' }}>
               {categories === 'comptes' && (
-                <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginTop: 10 }}>
-                  <Button 
-                    title="Supprimer" 
-                    onPress={() => handleDelete(item.id, 'user')} 
-                  />
-                  <Button 
-                    title="Modifier" 
-                    onPress={() => navigation.navigate('UpdateCompte', { user: item })} 
-                  />
-                </View>
+                <Image 
+                  source={item.image_url ? { uri: item.image_url } : defaultProfileImage}
+                  style={{ width: 50, height: 50, borderRadius: 25, marginRight: 10 }} 
+                />
               )}
+              <View>
+                <Text style={{ fontSize: 18 }}>{categories === 'comptes' ? item.nom : `Ref : ${item.id}`}</Text>
+
+                {categories === 'comptes' ? (
+                  <>
+                    <Text>Email: {item.email}</Text>
+                    <Text>Rôle: {item.role}</Text>
+                  </>
+                ) : (
+                  <>
+                    <Text>Client : {item.email}</Text>
+                    <Text>Date création : {item.date_creation}</Text>
+                    <Text>Montant total : {item.total} HT</Text>
+                    <Text>État : {item.etat}</Text>
+
+                    {item.etat === 'non payée' && (
+                      <Button 
+                        title="Marquer comme payée" 
+                        onPress={() => handlePaymentChange(item)} 
+                      />
+                    )}
+                  </>
+                )}
+
+                {categories === 'comptes' && (
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginTop: 10 }}>
+                    <Button 
+                      title="Supprimer" 
+                      onPress={() => handleDelete(item.id, 'user')} 
+                    />
+                    <Button 
+                      title="Modifier" 
+                      onPress={() => navigation.navigate('UpdateCompte', { user: item })} 
+                    />
+                  </View>
+                )}
+              </View>
             </View>
           )}
         />

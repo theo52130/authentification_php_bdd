@@ -33,31 +33,34 @@ if (!isset($user['id'])) {
     exit;
 }
 
-// Récupération des utilisateurs
+// Récupération des données
 if (isset($_GET['method'])) {
     $method = $_GET['method'];
+    $response = [];
 
     switch ($method) {
         case 'getUsers':
-            fetchUsers($pdo);
+            $response = fetchUsers($pdo);
             break;
 
         case 'getClients':
-            fetchClients($pdo);
+            $response = fetchClients($pdo);
             break;
 
         case 'getFactures':
-            fetchFactures($pdo, $user['id']);
+            $response = fetchFactures($pdo, $user['id']);
             break;
 
         case 'getProduits':
-            fetchProduits($pdo);
+            $response = fetchProduits($pdo);
             break;
 
         default:
-            echo json_encode(['status' => 'error', 'message' => 'Méthode non reconnue.']);
+            $response = ['status' => 'error', 'message' => 'Méthode non reconnue.'];
             break;
     }
+
+    echo json_encode($response);
 } else {
     echo json_encode(['status' => 'error', 'message' => 'Aucune méthode spécifiée.']);
 }
@@ -70,9 +73,9 @@ function fetchUsers($pdo)
         $stmt->execute();
         $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        echo json_encode(['status' => 'success', 'users' => $users]);
+        return ['status' => 'success', 'users' => $users];
     } catch (PDOException $e) {
-        echo json_encode(['status' => 'error', 'message' => 'Erreur lors de la récupération des utilisateurs : ' . $e->getMessage()]);
+        return ['status' => 'error', 'message' => 'Erreur lors de la récupération des utilisateurs : ' . $e->getMessage()];
     }
 }
 
@@ -84,27 +87,26 @@ function fetchClients($pdo)
         $stmt->execute();
         $clients = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        echo json_encode(['status' => 'success', 'clients' => $clients]);
+        return ['status' => 'success', 'clients' => $clients];
     } catch (PDOException $e) {
-        echo json_encode(['status' => 'error', 'message' => 'Erreur lors de la récupération des clients : ' . $e->getMessage()]);
+        return ['status' => 'error', 'message' => 'Erreur lors de la récupération des clients : ' . $e->getMessage()];
     }
 }
 
-function fetchFactures($pdo, $client_id)
+function fetchFactures($pdo)
 {
     try {
-        // Exemple : Récupération des factures avec l'email du client
         $query = "
             SELECT f.id, f.date_creation, f.total, f.etat, c.email
             FROM factures f
-            JOIN comptes c ON f.client_id = c.id"; // Assurez-vous que f.client_id correspond à la clé étrangère
+            JOIN comptes c ON f.client_id = c.id";
         $stmt = $pdo->prepare($query);
-        $stmt->execute();
+        $stmt->execute(); // No need to bind parameters here
         $factures = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        echo json_encode(['status' => 'success', 'factures' => $factures]);
+        return ['status' => 'success', 'factures' => $factures];
     } catch (PDOException $e) {
-        echo json_encode(['status' => 'error', 'message' => 'Erreur lors de la récupération des factures : ' . $e->getMessage()]);
+        return ['status' => 'error', 'message' => 'Erreur lors de la récupération des factures : ' . $e->getMessage()];
     }
 }
 
@@ -117,8 +119,8 @@ function fetchProduits($pdo)
         $stmt->execute();
         $produits = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        echo json_encode(['status' => 'success', 'produits' => $produits]);
+        return ['status' => 'success', 'produits' => $produits];
     } catch (PDOException $e) {
-        echo json_encode(['status' => 'error', 'message' => 'Erreur lors de la récupération des produits : ' . $e->getMessage()]);
+        return ['status' => 'error', 'message' => 'Erreur lors de la récupération des produits : ' . $e->getMessage()];
     }
 }

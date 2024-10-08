@@ -41,6 +41,11 @@ const UpdateCompte = ({ route, navigation }) => {
   };
 
   const handleUpdate = async () => {
+    if (!nom || !email || !adresse) {
+      Alert.alert('Erreur', 'Veuillez remplir tous les champs obligatoires.');
+      return;
+    }
+
     if (siret === '' && emailEntreprise !== '') {
       Alert.alert('Erreur', 'Veuillez d\'abord renseigner le SIRET avant d\'entrer un email d\'entreprise.');
       return;
@@ -81,7 +86,7 @@ const UpdateCompte = ({ route, navigation }) => {
       <TextInput value={nom} onChangeText={setNom} style={styles.input} />
 
       <Text style={styles.label}>Email:</Text>
-      <TextInput value={email} onChangeText={setEmail} style={styles.input} />
+      <TextInput value={email} onChangeText={setEmail} style={styles.input} keyboardType="email-address" />
 
       <Text style={styles.label}>Adresse:</Text>
       <TextInput value={adresse} onChangeText={setAdresse} style={styles.input} />
@@ -92,6 +97,7 @@ const UpdateCompte = ({ route, navigation }) => {
         onChangeText={setEmailEntreprise}
         style={styles.input}
         editable={siret !== ''}
+        keyboardType="email-address"
       />
 
       <Text style={styles.label}>SIRET:</Text>
