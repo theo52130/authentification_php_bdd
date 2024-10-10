@@ -9,7 +9,6 @@ import AdminScreen from './AdminScreen';
 import RegisterScreen from './RegisterScreen';
 import CreateFactureScreen from './CreateFactureScreen';
 import UpdateCompteScreen from './UpdateCompteScreen';
-import UpdateFactureScreen from './UpdateFactureScreen';
 import ErrorScreen from './ErrorScreen';
 
 const Stack = createStackNavigator();
@@ -25,7 +24,6 @@ const AppNavigator = () => {
                 <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
                 <Stack.Screen name="CreateFactureScreen" component={CreateFactureScreen} />
                 <Stack.Screen name="UpdateCompte" component={UpdateCompteScreen} />
-                <Stack.Screen name="UpdateFacture" component={UpdateFactureScreen} />
                 <Stack.Screen name="Error" component={ErrorScreen} />
             </Stack.Navigator>
         </NavigationContainer>

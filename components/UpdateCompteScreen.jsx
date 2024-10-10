@@ -57,7 +57,7 @@ const UpdateCompte = ({ route, navigation }) => {
     }
 
     setLoading(true);
-    const data = await apiRequest('http://172.20.10.10/dashboard/authentification_php_bdd/back-end/api/api-update.php', 'PUT', {
+    const data = await apiRequest('http://192.168.1.143/dashboard/authentification_php_bdd/back-end/api/api-update.php', 'PUT', {
       id: user.id,
       nom,
       email,
