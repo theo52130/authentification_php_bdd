@@ -17,7 +17,7 @@ const AdminScreen = ({ navigation }) => {
         const token = await AsyncStorage.getItem('token');
         if (!token) {
             Alert.alert('Erreur', 'Token manquant. Veuillez vous reconnecter.');
-            navigation.navigate('LoginScreen');
+            navigation.navigate('Connexions');
             return null;
         }
         try {
@@ -106,7 +106,7 @@ const AdminScreen = ({ navigation }) => {
             {
                 text: 'Oui', onPress: async () => {
                     await AsyncStorage.clear();
-                    navigation.navigate('LoginScreen');
+                    navigation.navigate('Connexions');
                 }
             },
         ]);
@@ -215,38 +215,66 @@ const AdminScreen = ({ navigation }) => {
             ) : (
                 <FlatList
                     data={categories === 'comptes' ? users : factures}
-                    keyExtractor={item => item.id ? item.id.toString() : item.email ? item.email : Math.random().toString()}
+                    keyExtractor={(item) => item.id ? item.id.toString() : item.email}
                     renderItem={({ item }) => (
                         <View style={{
                             padding: 10,
                             borderBottomWidth: 1,
                             borderBottomColor: '#ccc',
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            justifyContent: 'space-between'
+                            marginVertical: 10
                         }}>
                             {categories === 'comptes' ? (
                                 <>
-                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                        <Image source={item.profile_image || defaultProfileImage} style={{ width: 40, height: 40, borderRadius: 20 }} />
-                                        <Text style={{ fontSize: 18, marginLeft: 10 }}>{item.nom}</Text>
+                                    <Text style={{ fontSize: 18, fontWeight: 'bold' }}>{item.nom}</Text>
+                                    <Text>Email: {item.email}</Text>
+                                    {item.email_entreprise && <Text>Email Entreprise: {item.email_entreprise}</Text>}
+                                    {item.siret && <Text>SIRET: {item.siret}</Text>}
+                                    <Text>Adresse: {item.adresse}</Text>
+                                    <Text>Rôle: {item.role}</Text>
+
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
+                                        <TouchableOpacity onPress={() => handleDelete(item.id, 'compte')} style={{
+                                            flexDirection: 'row', backgroundColor: 'red', padding: 10, borderRadius: 5, alignItems: 'center'
+                                        }}>
+                                            <Ionicons name="trash-outline" size={20} color="white" />
+                                        </TouchableOpacity>
+
+                                        <TouchableOpacity onPress={() => navigation.navigate('Modifier compte', { user: item })}
+                                            style={{
+                                                flexDirection: 'row', backgroundColor: 'blue', padding: 10, borderRadius: 5, alignItems: 'center'
+                                            }}>
+                                            <Ionicons name="create-outline" size={20} color="white" />
+                                            <Text style={{ marginLeft: 5, color: 'white' }}>Modifier</Text>
+                                        </TouchableOpacity>
                                     </View>
-                                    <TouchableOpacity onPress={() => handleDelete(item.id, 'user')}>
-                                        <Ionicons name="trash" size={24} color="red" />
-                                    </TouchableOpacity>
                                 </>
                             ) : (
                                 <>
-                                    <Text style={{ fontSize: 18 }}>Facture #{item.id}</Text>
-                                    <View style={{ flexDirection: 'row' }}>
-                                        <TouchableOpacity onPress={() => handlePaymentChange(item)}>
-                                            <Ionicons name="checkmark" size={24} color={item.etat === 'payée' ? 'green' : 'gray'} />
-                                        </TouchableOpacity>
-                                        <TouchableOpacity onPress={() => handleDelete(item.id, 'facture')}>
-                                            <Ionicons name="trash" size={24} color="red" />
-                                        </TouchableOpacity>
-                                        <TouchableOpacity onPress={() => downloadPDF(item.id)}>
-                                            <Ionicons name="download" size={24} color="black" />
+                                    <Text style={{ fontSize: 16, fontWeight: 'bold' }}>Facture #{item.id}</Text>
+                                    <Text>Email du client: {item.email}</Text>
+                                    <Text>Date de création: {item.date_creation}</Text>
+                                    <Text>Montant total: {item.total} € HT</Text>
+                                    <Text style={{ textDecorationLine: item.etat === 'payée' ? 'none' : 'underline', color: item.etat === 'payée' ? 'green' : 'red' }}>
+                                        État: {item.etat === 'payée' ? 'Payée' : 'Non payée'}
+                                    </Text>
+
+                                    {/* Boutons pour les factures alignés en row avec icônes */}
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
+                                        {/* Bouton pour marquer comme payée */}
+                                        {item.etat === 'non payée' && (
+                                            <TouchableOpacity onPress={() => handlePaymentChange(item)} style={{
+                                                flexDirection: 'row', backgroundColor: 'green', padding: 10, borderRadius: 5, alignItems: 'center'
+                                            }}>
+                                                <Ionicons name="checkmark-outline" size={20} color="white" />
+                                                <Text style={{ color: 'white', marginLeft: 5 }}>Marquer comme payée</Text>
+                                            </TouchableOpacity>
+                                        )}
+
+                                        <TouchableOpacity onPress={() => downloadPDF(item.id)} style={{
+                                            flexDirection: 'row', backgroundColor: 'blue', padding: 10, borderRadius: 5, alignItems: 'end'
+                                        }}>
+                                            <Ionicons name="document-outline" size={20} color="white" />
+                                            <Text style={{ color: 'white', marginLeft: 5 }}>PDF</Text>
                                         </TouchableOpacity>
                                     </View>
                                 </>
@@ -254,15 +282,17 @@ const AdminScreen = ({ navigation }) => {
                         </View>
                     )}
                 />
+
+
             )}
 
             {categories === 'factures' && (
                 <View>
                     <TouchableOpacity onPress={downloadCSV} style={{
-                backgroundColor: 'green', padding: 10, borderRadius: 5, alignItems: 'center', marginVertical: 10
-            }}>
-                <Text style={{ color: 'white' }}>Télécharger CSV</Text>
-            </TouchableOpacity>
+                        backgroundColor: 'green', padding: 10, borderRadius: 5, alignItems: 'center', marginVertical: 10
+                    }}>
+                        <Text style={{ color: 'white' }}>Télécharger CSV</Text>
+                    </TouchableOpacity>
                 </View>
             )}
 

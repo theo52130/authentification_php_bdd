@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Alert, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, Alert, ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNPickerSelect from 'react-native-picker-select';
 
@@ -142,7 +142,11 @@ const UpdateCompte = ({ route, navigation }) => {
       {loading ? (
         <ActivityIndicator size="large" color="#0000ff" />
       ) : (
-        <Button title="Mettre à jour" onPress={handleUpdate} color="#007BFF" />
+        <TouchableOpacity onPress={handleUpdate} style={{
+          flexDirection: 'row', backgroundColor: 'blue', padding: 10, borderRadius: 5, alignItems: 'center', justifyContent: 'center', marginTop: 10
+        }}>
+          <Text style={{ color: 'white', marginLeft: 5 }}>Mettre à jour</Text>
+        </TouchableOpacity>
       )}
     </View>
   );

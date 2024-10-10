@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert, KeyboardAvoidingView, ScrollView, TouchableWithoutFeedback, Keyboard, Platform } from 'react-native';
 import RNPickerSelect from 'react-native-picker-select';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { FlatList } from 'react-native-web';
 
 const CreateFactureScreen = ({ navigation }) => {
     const [formData, setFormData] = useState({
@@ -129,22 +130,22 @@ const CreateFactureScreen = ({ navigation }) => {
                             const prixUnitaire = selectedProduit ? selectedProduit.prix_unitaire : 0;
 
                             return (
-                                <View key={index} style={styles.produitContainer}>
-                                    <RNPickerSelect
-                                        onValueChange={(value) => handleProductChange(index, 'id', value)}
-                                        items={[{ label: 'Sélectionner un produit', value: '' }, ...produits.map(prod => ({ label: prod.description, value: prod.id }))]}
-                                        style={pickerSelectStyles}
-                                        value={produit.id}
-                                    />
-                                    <TextInput
-                                        placeholder="Qté"
-                                        value={produit.quantite.toString()}
-                                        onChangeText={(value) => handleProductChange(index, 'quantite', parseInt(value) || 1)}
-                                        style={styles.quantityInput}
-                                        keyboardType="numeric"
-                                    />
-                                    <Text style={styles.prixText}>{`Prix: ${prixUnitaire} €`}</Text>
-                                </View>
+                                    <View key={index} style={styles.produitContainer}>
+                                        <RNPickerSelect
+                                            onValueChange={(value) => handleProductChange(index, 'id', value)}
+                                            items={[{ label: 'Sélectionner un produit', value: '' }, ...produits.map(prod => ({ label: prod.description, value: prod.id }))]}
+                                            style={pickerSelectStyles}
+                                            value={produit.id}
+                                        />
+                                        <TextInput
+                                            placeholder="Qté"
+                                            value={produit.quantite.toString()}
+                                            onChangeText={(value) => handleProductChange(index, 'quantite', parseInt(value) || 1)}
+                                            style={styles.quantityInput}
+                                            keyboardType="numeric"
+                                        />
+                                        <Text style={styles.prixText}>{`Prix: ${prixUnitaire} €`}</Text>
+                                    </View>
                             );
                         })}
 

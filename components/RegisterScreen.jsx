@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, KeyboardAvoidingView, ScrollView, TouchableWithoutFeedback, Keyboard, Platform } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, KeyboardAvoidingView, ScrollView, TouchableWithoutFeedback, Keyboard, Platform, TouchableOpacity } from 'react-native';
 import RNPickerSelect from 'react-native-picker-select';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -23,7 +23,7 @@ const RegisterScreen = ({ navigation }) => {
 
     const handleSubmit = async () => {
         const token = await AsyncStorage.getItem('token');
-        
+
         if (!token) {
             Alert.alert('Erreur', 'Token manquant. Veuillez vous reconnecter.');
             navigation.navigate('LoginScreen');
@@ -56,45 +56,56 @@ const RegisterScreen = ({ navigation }) => {
 
     return (
         <KeyboardAvoidingView
-            style={{ flex: 1 }}
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                     <View style={styles.container}>
                         <Text style={styles.title}>Créer un compte</Text>
+
+                        <Text style={styles.label}>*Prenom Nom:</Text>
                         <TextInput
-                            placeholder="*Nom"
+                            placeholder="*Prenom Nom"
                             value={formData.nom}
                             onChangeText={(value) => handleChange('nom', value)}
                             style={styles.input}
                         />
+
+                        <Text style={styles.label}>*Email :</Text>
                         <TextInput
-                            placeholder="*Email"
+                            placeholder="exemple@exemple.fr"
                             value={formData.email}
                             onChangeText={(value) => handleChange('email', value)}
                             style={styles.input}
                             keyboardType="email-address"
                             autoCapitalize="none"
                         />
+
+                        <Text style={styles.label}>*Adresse :</Text>
                         <TextInput
-                            placeholder="*Adresse"
+                            placeholder="rue, ville, code postal"
                             value={formData.adresse}
                             onChangeText={(value) => handleChange('adresse', value)}
                             style={styles.input}
                         />
+
+                        <Text style={styles.label}>Email entreprise:</Text>
                         <TextInput
-                            placeholder="Email Entreprise"
+                            placeholder="exemple@exemple.fr"
                             value={formData.email_entreprise}
                             onChangeText={(value) => handleChange('email_entreprise', value)}
                             style={styles.input}
                         />
+
+                        <Text style={styles.label}>Siret :</Text>
                         <TextInput
-                            placeholder="SIRET"
+                            placeholder="xxxxxxxxxxxxxx"
                             value={formData.siret}
                             onChangeText={(value) => handleChange('siret', value)}
                             style={styles.input}
                         />
+
+                        <Text style={styles.label}>*Mot de passe :</Text>
                         <TextInput
                             placeholder="*Mot de passe"
                             value={formData.password}
@@ -102,6 +113,8 @@ const RegisterScreen = ({ navigation }) => {
                             style={styles.input}
                             secureTextEntry
                         />
+
+                        <Text style={styles.label}>*Role :</Text>
                         <RNPickerSelect
                             onValueChange={(value) => handleChange('role', value)}
                             items={[
@@ -111,8 +124,13 @@ const RegisterScreen = ({ navigation }) => {
                             ]}
                             style={pickerSelectStyles}
                             value={formData.role}
+                            placeholder={{ label: 'Sélectionnez un rôle...', value: null }}
                         />
-                        <Button title="S'inscrire" onPress={handleSubmit} />
+                        <TouchableOpacity onPress={handleSubmit} style={{
+                            flexDirection: 'row', backgroundColor: 'blue', padding: 10, borderRadius: 5, alignItems: 'center', justifyContent: 'center', marginTop: 10
+                        }}>
+                            <Text style={{ color: 'white', marginLeft: 5 }}>Créer</Text>
+                        </TouchableOpacity>
                     </View>
                 </TouchableWithoutFeedback>
             </ScrollView>

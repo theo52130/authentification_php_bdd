@@ -17,13 +17,13 @@ const AppNavigator = () => {
     return (
         <NavigationContainer>
             <Stack.Navigator initialRouteName="LoginScreen">
-                <Stack.Screen name="LoginScreen" component={LoginScreen} />
+                <Stack.Screen name="Connexions" component={LoginScreen} />
                 <Stack.Screen name="AdminScreen" component={AdminScreen} />
                 {/* <Stack.Screen name="EmployerScreen" component={EmployerScreen} />
                 <Stack.Screen name="ClientScreen" component={ClientScreen} /> */}
-                <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
-                <Stack.Screen name="CreateFactureScreen" component={CreateFactureScreen} />
-                <Stack.Screen name="UpdateCompte" component={UpdateCompteScreen} />
+                <Stack.Screen name="Creer compte" component={RegisterScreen} />
+                <Stack.Screen name="Creer facture" component={CreateFactureScreen} />
+                <Stack.Screen name="Modifier compte" component={UpdateCompteScreen} />
                 <Stack.Screen name="Error" component={ErrorScreen} />
             </Stack.Navigator>
         </NavigationContainer>
