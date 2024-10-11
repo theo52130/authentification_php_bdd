@@ -3,7 +3,8 @@ import { View, Text, Button, FlatList, Alert, TouchableOpacity, ActivityIndicato
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useFocusEffect } from '@react-navigation/native';
-import * as FileSystem from 'expo-file-system'; // Remplacer RNFS par FileSystem d'Expo
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 
 const defaultProfileImage = require('../assets/silhouette-profile.jpeg'); // Chemin vers l'image par défaut
 
@@ -139,42 +140,83 @@ const AdminScreen = ({ navigation }) => {
 
     const downloadPDF = async (id) => {
         try {
-            const response = await fetch(`http://192.168.1.143/dashboard/authentification_php_bdd/back-end/includes/csv-pdf/pdfTest.js`, {
+            const response = await fetch(`http://192.168.1.143/dashboard/authentification_php_bdd/back-end/includes/generate-pdf.php`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ id })
+                body: JSON.stringify({ id }),
             });
-            const blob = await response.blob();
-            const fileUri = `${FileSystem.documentDirectory}facture_${id}.pdf`;
-
-            await FileSystem.writeAsStringAsync(fileUri, blob, { encoding: FileSystem.EncodingType.Base64 });
-            Alert.alert('Succès', 'Le fichier PDF a été téléchargé avec succès.');
+    
+            if (!response.ok) throw new Error('Erreur lors du téléchargement du PDF');
+    
+            // Obtenez l'ArrayBuffer directement de la réponse
+            const arrayBuffer = await response.arrayBuffer();
+            const bytes = new Uint8Array(arrayBuffer);
+            const base64 = btoa(String.fromCharCode(...bytes)); // Convertir en base64
+    
+            // Créez un chemin pour le fichier PDF dans le dossier des documents
+            const fileUri = `${FileSystem.documentDirectory}mon_document.pdf`;
+    
+            // Écrire le PDF dans le fichier
+            await FileSystem.writeAsStringAsync(fileUri, base64, {
+                encoding: FileSystem.EncodingType.Base64,
+            });
+    
+            // Partager le fichier
+            await Sharing.shareAsync(fileUri, {
+                dialogTitle: 'Télécharger le PDF',
+                UTI: 'com.adobe.pdf',
+            });
+    
+            Alert.alert('Succès', 'Le PDF a été téléchargé avec succès!');
         } catch (error) {
             console.error('Erreur:', error);
-            Alert.alert('Erreur', 'Impossible de télécharger le fichier PDF.');
+            Alert.alert('Erreur', 'Impossible de télécharger le fichier PDF : ' + error.message);
         }
     };
 
     const downloadCSV = async () => {
         try {
-            const response = await fetch('http://192.168.1.143/dashboard/authentification_php_bdd/back-end/includes/csv-pdf/csv.php', {
+            // Remplace l'URL par celle de ton fichier CSV
+            const response = await fetch('http://192.168.1.143/dashboard/authentification_php_bdd/back-end/includes/generate-csv.php', {
                 method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
             });
-            const blob = await response.blob();
+    
+            if (!response.ok) {
+                throw new Error('Erreur lors de la récupération du fichier CSV.');
+            }
+    
+            // Récupère le contenu du CSV sous forme de texte
+            const csvText = await response.text();
+    
             const fileUri = `${FileSystem.documentDirectory}factures.csv`;
-
-            await FileSystem.writeAsStringAsync(fileUri, blob, { encoding: FileSystem.EncodingType.Base64 });
-            Alert.alert('Succès', 'Le fichier CSV a été téléchargé avec succès.');
+    
+            // Écriture du contenu dans le fichier
+            await FileSystem.writeAsStringAsync(fileUri, csvText, { encoding: FileSystem.EncodingType.UTF8 });
+    
+            Alert.alert('Succès', 'Le fichier CSV a été téléchargé avec succès.', [
+                { text: 'OK', onPress: () => console.log('CSV téléchargé à :', fileUri) },
+            ]);
         } catch (error) {
             console.error('Erreur:', error);
-            Alert.alert('Erreur', 'Impossible de télécharger le fichier CSV.');
+            Alert.alert('Erreur', 'Impossible de télécharger le fichier CSV : ' + error.message);
         }
     };
+
+
+    const blobToBase64 = (blob) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const base64data = reader.result.split(',')[1];
+                resolve(base64data);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
+    };
+
 
 
     return (

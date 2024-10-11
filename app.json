@@ -13,10 +13,15 @@
     },
     "platforms": ["ios", "android", "web"],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "WRITE_EXTERNAL_STORAGE": "true",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Cette application nécessite l'accès à votre bibliothèque de photos.",
+        "NSPhotoLibraryAddUsageDescription": "Cette application nécessite l'accès pour sauvegarder des fichiers dans votre bibliothèque de photos."
+      }
     },
     "android": {
-      "permissions": ["INTERNET"],
+      "permissions": ["INTERNET", "WRITE_EXTERNAL_STORAGE"],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"

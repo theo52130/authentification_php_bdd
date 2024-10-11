@@ -6,6 +6,7 @@ $user = 'cubeTrois'; // L'utilisateur de la base de données
 $pass = 'mdpcubetrois'; // Le mot de passe de l'utilisateur de la base de données
 $charset = 'utf8mb4'; // Le jeu de caractères
 
+
 // DSN (Data Source Name) pour la connexion
 $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
 
