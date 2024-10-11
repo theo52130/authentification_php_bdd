@@ -41,7 +41,7 @@ const AdminScreen = ({ navigation }) => {
 
     const fetchUsers = async () => {
         setLoading(true);
-        const data = await apiRequest('http://192.168.1.143/dashboard/authentification_php_bdd/back-end/api/api-select.php?method=getUsers', 'GET');
+        const data = await apiRequest('http://172.20.10.10/dashboard/authentification_php_bdd/back-end/api/api-select.php?method=getUsers', 'GET');
         if (data && data.status === 'success') {
             setUsers(data.users);
         } else {
@@ -52,7 +52,7 @@ const AdminScreen = ({ navigation }) => {
 
     const fetchFactures = async () => {
         setLoading(true);
-        const data = await apiRequest('http://192.168.1.143/dashboard/authentification_php_bdd/back-end/api/api-select.php?method=getFactures', 'GET');
+        const data = await apiRequest('http://172.20.10.10/dashboard/authentification_php_bdd/back-end/api/api-select.php?method=getFactures', 'GET');
         if (data && data.status === 'success') {
             setFactures(data.factures);
         } else {
@@ -80,7 +80,7 @@ const AdminScreen = ({ navigation }) => {
                 {
                     text: 'Oui',
                     onPress: async () => {
-                        const data = await apiRequest('http://192.168.1.143/dashboard/authentification_php_bdd/back-end/api/api-delete.php', 'DELETE', {
+                        const data = await apiRequest('http://172.20.10.10/dashboard/authentification_php_bdd/back-end/api/api-delete.php', 'DELETE', {
                             id,
                             type
                         });
@@ -122,7 +122,7 @@ const AdminScreen = ({ navigation }) => {
                 {
                     text: 'Oui',
                     onPress: async () => {
-                        const data = await apiRequest('http://192.168.1.143/dashboard/authentification_php_bdd/back-end/api/api-payments.php', 'POST', { id: facture.id });
+                        const data = await apiRequest('http://172.20.10.10/dashboard/authentification_php_bdd/back-end/api/api-payments.php', 'POST', { id: facture.id });
                         if (data && data.status === 'success') {
                             setFactures(prevFactures => prevFactures.map(f =>
                                 f.id === facture.id ? { ...f, etat: 'payée' } : f
@@ -140,7 +140,7 @@ const AdminScreen = ({ navigation }) => {
 
     const downloadPDF = async (id) => {
         try {
-            const response = await fetch(`http://192.168.1.143/dashboard/authentification_php_bdd/back-end/includes/generate-pdf.php`, {
+            const response = await fetch(`http://172.20.10.10/dashboard/authentification_php_bdd/back-end/includes/generate-pdf.php`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -179,7 +179,7 @@ const AdminScreen = ({ navigation }) => {
     const downloadCSV = async () => {
         try {
             // Remplace l'URL par celle de ton fichier CSV
-            const response = await fetch('http://192.168.1.143/dashboard/authentification_php_bdd/back-end/includes/generate-csv.php', {
+            const response = await fetch('http://172.20.10.10/dashboard/authentification_php_bdd/back-end/includes/generate-csv.php', {
                 method: 'GET',
             });
     
@@ -217,7 +217,9 @@ const AdminScreen = ({ navigation }) => {
         });
     };
 
-
+    const empty = (value) => {
+        return value === null || value === undefined || value === '';
+    };
 
     return (
         <View style={{ flex: 1, padding: 20 }}>
@@ -269,8 +271,10 @@ const AdminScreen = ({ navigation }) => {
                                 <>
                                     <Text style={{ fontSize: 18, fontWeight: 'bold' }}>{item.nom}</Text>
                                     <Text>Email: {item.email}</Text>
-                                    {item.email_entreprise && <Text>Email Entreprise: {item.email_entreprise}</Text>}
-                                    {item.siret && <Text>SIRET: {item.siret}</Text>}
+
+                                    {!empty(item.email_entreprise) && <Text>Email Entreprise: {item.email_entreprise}</Text>}
+                                    {!empty(item.siret) && <Text>SIRET: {item.siret}</Text>}
+
                                     <Text>Adresse: {item.adresse}</Text>
                                     <Text>Rôle: {item.role}</Text>
 
