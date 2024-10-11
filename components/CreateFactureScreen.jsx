@@ -25,7 +25,7 @@ const CreateFactureScreen = ({ navigation }) => {
 
             try {
                 // Récupérer les clients
-                const clientsResponse = await fetch('http://192.168.1.143/dashboard/authentification_php_bdd/back-end/api/api-select.php?method=getClients', {
+                const clientsResponse = await fetch('http://172.20.10.10/dashboard/authentification_php_bdd/back-end/api/api-select.php?method=getClients', {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                     },
@@ -34,7 +34,7 @@ const CreateFactureScreen = ({ navigation }) => {
                 setClients(clientsData.clients || []);
 
                 // Récupérer les produits
-                const produitsResponse = await fetch('http://192.168.1.143/dashboard/authentification_php_bdd/back-end/api/api-select.php?method=getProduits', {
+                const produitsResponse = await fetch('http://172.20.10.10/dashboard/authentification_php_bdd/back-end/api/api-select.php?method=getProduits', {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                     },
@@ -84,7 +84,7 @@ const CreateFactureScreen = ({ navigation }) => {
         }
 
         try {
-            const response = await fetch('http://192.168.1.143/dashboard/authentification_php_bdd/back-end/api/api-create-facture.php', {
+            const response = await fetch('http://172.20.10.10/dashboard/authentification_php_bdd/back-end/api/api-create-facture.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -39,7 +39,7 @@ const AdminScreen = ({ navigation }) => {
 
   const fetchUsers = async () => {
     setLoading(true);
-    const data = await apiRequest('http://192.168.1.143/dashboard/authentification_php_bdd/back-end/api/api-select.php?method=getUsers', 'GET');
+    const data = await apiRequest('http://172.20.10.10/dashboard/authentification_php_bdd/back-end/api/api-select.php?method=getUsers', 'GET');
     if (data && data.status === 'success') {
       setUsers(data.users);
     } else {
@@ -50,7 +50,7 @@ const AdminScreen = ({ navigation }) => {
 
   const fetchFactures = async () => {
     setLoading(true);
-    const data = await apiRequest('http://192.168.1.143/dashboard/authentification_php_bdd/back-end/api/api-select.php?method=getFactures', 'GET');
+    const data = await apiRequest('http://172.20.10.10/dashboard/authentification_php_bdd/back-end/api/api-select.php?method=getFactures', 'GET');
     if (data && data.status === 'success') {
       setFactures(data.factures);
     } else {
@@ -78,7 +78,7 @@ const AdminScreen = ({ navigation }) => {
         {
           text: 'Oui',
           onPress: async () => {
-            const data = await apiRequest('http://192.168.1.143/dashboard/authentification_php_bdd/back-end/api/api-delete.php', 'DELETE', { id, type });
+            const data = await apiRequest('http://172.20.10.10/dashboard/authentification_php_bdd/back-end/api/api-delete.php', 'DELETE', { id, type });
             if (data && data.status === 'success') {
               if (type === 'user') {
                 setUsers(prevUsers => prevUsers.filter(user => user.id !== id));
@@ -115,7 +115,7 @@ const AdminScreen = ({ navigation }) => {
         {
           text: 'Oui',
           onPress: async () => {
-            const data = await apiRequest('http://192.168.1.143/dashboard/authentification_php_bdd/back-end/api/api-payments.php', 'POST', { id: facture.id });
+            const data = await apiRequest('http://172.20.10.10/dashboard/authentification_php_bdd/back-end/api/api-payments.php', 'POST', { id: facture.id });
             if (data && data.status === 'success') {
               setFactures(prevFactures => prevFactures.map(f => 
                 f.id === facture.id ? { ...f, etat: 'payée' } : f
