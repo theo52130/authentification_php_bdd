@@ -1,22 +1,22 @@
 <?php
-ini_set('display_errors', 0);
-ini_set('display_startup_errors', 0);
-error_reporting(E_ALL);
+ini_set('display_errors', 0); // Désactiver l'affichage des erreurs
+ini_set('display_startup_errors', 0); // Désactiver l'affichage des erreurs de démarrage
+error_reporting(E_ALL); // Rapporter toutes les erreurs
 ob_start(); // Démarrer la gestion des tampons de sortie
 
-include '../includes/config.php';
-include_once '../includes/token.php';
+include '../includes/config.php'; // Inclure la configuration de la base de données
+include_once '../includes/token.php'; // Inclure le fichier de vérification du token
 
-header("Content-Type: application/json");
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
+header("Content-Type: application/json"); // Définir l'en-tête de la réponse comme JSON
+header("Access-Control-Allow-Origin: *"); // Autoriser toutes les origines pour les requêtes CORS
+header("Access-Control-Allow-Methods: DELETE, OPTIONS"); // Autoriser les méthodes DELETE et OPTIONS
+header("Access-Control-Allow-Headers: Content-Type, Authorization"); // Autoriser les en-têtes Content-Type et Authorization
 
 // Gérer les requêtes prévols OPTIONS
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
+    http_response_code(200); // Répondre avec un code de statut 200 pour les requêtes OPTIONS
     ob_end_clean(); // Nettoyer le tampon avant de quitter
-    exit;
+    exit; // Terminer le script
 }
 
 // Fonction pour récupérer les en-têtes si `getallheaders` n'est pas disponible
@@ -25,7 +25,9 @@ if (!function_exists('getallheaders')) {
     {
         $headers = [];
         foreach ($_SERVER as $name => $value) {
+            // Vérifier si le nom de l'en-tête commence par 'HTTP_'
             if (substr($name, 0, 5) == 'HTTP_') {
+                // Convertir le nom de l'en-tête en format lisible et l'ajouter au tableau des en-têtes
                 $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
             }
         }
@@ -34,12 +36,12 @@ if (!function_exists('getallheaders')) {
 }
 
 // Vérification du token
-$headers = getallheaders();
-if (!isset($headers['Authorization'])) {
-    http_response_code(401);
-    ob_clean();
-    echo json_encode(['status' => 'error', 'message' => 'Token manquant.']);
-    exit;
+$headers = getallheaders(); // Récupérer les en-têtes de la requête
+if (!isset($headers['Authorization'])) { // Vérifier si l'en-tête 'Authorization' est présent
+    http_response_code(401); // Répondre avec un code de statut 401 (Non autorisé)
+    ob_clean(); // Nettoyer le tampon
+    echo json_encode(['status' => 'error', 'message' => 'Token manquant.']); // Envoyer la réponse en JSON
+    exit; // Terminer le script
 }
 
 $token = str_replace('Bearer ', '', $headers['Authorization']);

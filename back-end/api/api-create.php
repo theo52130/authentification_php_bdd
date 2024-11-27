@@ -2,7 +2,7 @@
 include '../includes/config.php'; // Inclure la configuration de la base de données
 include_once '../includes/token.php'; // Inclure le fichier de vérification du token
 
-header("Content-Type: application/json");
+header("Content-Type: application/json"); // Définir l'en-tête de la réponse comme JSON
 
 // Fonction pour récupérer les en-têtes si `getallheaders` n'est pas disponible
 if (!function_exists('getallheaders')) {
@@ -10,7 +10,9 @@ if (!function_exists('getallheaders')) {
     {
         $headers = [];
         foreach ($_SERVER as $name => $value) {
+            // Vérifier si le nom de l'en-tête commence par 'HTTP_'
             if (substr($name, 0, 5) == 'HTTP_') {
+                // Convertir le nom de l'en-tête en format lisible et l'ajouter au tableau des en-têtes
                 $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
             }
         }
@@ -18,25 +20,28 @@ if (!function_exists('getallheaders')) {
     }
 }
 
-// Vérification du token
+// Récupérer les en-têtes de la requête
 $headers = getallheaders();
 $response = []; // Variable pour stocker la réponse
 
+// Vérifier si l'en-tête 'Authorization' est présent
 if (!isset($headers['Authorization'])) {
-    http_response_code(401);
-    $response = ['status' => 'error', 'message' => 'Token manquant.'];
-    echo json_encode($response);
-    exit;
+    http_response_code(401); // Répondre avec un code de statut 401 (Non autorisé)
+    $response = ['status' => 'error', 'message' => 'Token manquant.']; // Message d'erreur
+    echo json_encode($response); // Envoyer la réponse en JSON
+    exit; // Terminer le script
 }
 
+// Extraire le token de l'en-tête 'Authorization'
 $token = str_replace('Bearer ', '', $headers['Authorization']);
+// Vérifier la validité du token
 $user = verifyToken($token);
 
 if (!$user) {
-    http_response_code(401);
-    $response = ['status' => 'error', 'message' => 'Token invalide ou expiré.'];
-    echo json_encode($response);
-    exit;
+    http_response_code(401); // Répondre avec un code de statut 401 (Non autorisé)
+    $response = ['status' => 'error', 'message' => 'Token invalide ou expiré.']; // Message d'erreur
+    echo json_encode($response); // Envoyer la réponse en JSON
+    exit; // Terminer le script
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

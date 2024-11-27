@@ -1,18 +1,20 @@
 <?php
 include '../includes/config.php'; // Inclure la configuration de la base de données
 
-header("Content-Type: application/json");
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
+header("Content-Type: application/json"); // Définir l'en-tête de la réponse comme JSON
+header("Access-Control-Allow-Origin: *"); // Autoriser toutes les origines pour les requêtes CORS
+header("Access-Control-Allow-Methods: POST, OPTIONS"); // Autoriser les méthodes POST et OPTIONS
+header("Access-Control-Allow-Headers: Content-Type"); // Autoriser l'en-tête Content-Type
 
+// Gérer les requêtes prévols OPTIONS
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit;
+    http_response_code(200); // Répondre avec un code de statut 200 pour les requêtes OPTIONS
+    exit; // Terminer le script
 }
 
+// Vérifier si la méthode de la requête est POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['userId'])) {
+    if (isset($_POST['userId'])) { // Vérifier si le champ 'userId' est présent dans la requête
         $userId = $_POST['userId'];
 
         try {
@@ -21,9 +23,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $checkStmt = $pdo->prepare($checkQuery);
             $checkStmt->execute([$userId]);
 
-            if ($checkStmt->rowCount() === 0) {
-                echo json_encode(['status' => 'error', 'message' => 'Utilisateur non trouvé.']);
-                exit;
+            if ($checkStmt->rowCount() === 0) { // Si l'utilisateur n'existe pas
+                echo json_encode(['status' => 'error', 'message' => 'Utilisateur non trouvé.']); // Envoyer un message d'erreur en JSON
+                exit; // Terminer le script
             }
 
             // Vérifier si un token valide existe déjà
@@ -32,12 +34,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $tokenStmt->execute([$userId, time()]);
             $existingToken = $tokenStmt->fetch(PDO::FETCH_ASSOC);
 
-            if ($existingToken) {
+            if ($existingToken) { // Si un token valide existe déjà
                 // Un token valide existe déjà, le renvoyer
-                echo json_encode(['token' => $existingToken['token']]);
+                echo json_encode(['token' => $existingToken['token']]); // Envoyer le token existant en JSON
             } else {
                 // Aucun token valide trouvé, générer un nouveau token
-                $token = bin2hex(random_bytes(32));
+                $token = bin2hex(random_bytes(32)); // Générer un token aléatoire
                 $expiry = time() + 3600; // Le token expire dans 1 heure
 
                 // Insérer le token dans la table tokens
